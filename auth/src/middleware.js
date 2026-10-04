@@ -21,7 +21,14 @@ async function register(req,res,next) {
 async function profile(req,res,next)
 {
     try{
-        const token=req.cookies.token;
+        let token=req.cookies.token;
+        if(!token && req.headers.authorization) {
+            const Header=req.headers.authorization;
+
+            if(Header.startsWith("Bearer ")) {
+                token=Header.split(" ")[1];
+            }
+        }
         if(!token)return res.status(401).json({message: "Please login"});
         const decoded=jwt.verify(token,process.env.JWT);
         const redistoken = await redis.get(`token${decoded.id}`);

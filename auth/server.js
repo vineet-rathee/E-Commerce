@@ -4,6 +4,7 @@ const mongoose=require("./src/configs/mongoose");
 const http=require("http");
 const server=http.createServer(app);
 
-server.listen(process.env.PORT,()=>{
-    console.log(`👍 Auth microservice is running on port http://localhost:${process.env.PORT}`);
-})
+const PORT = process.env.PORT || 3001;
+server.listen(PORT, () => {
+    console.log(`👍 Auth microservice is running on port http://localhost:${PORT}`);
+});

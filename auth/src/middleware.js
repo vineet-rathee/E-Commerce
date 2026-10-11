@@ -18,34 +18,42 @@ async function register(req,res,next) {
     next();
 }
 
-async function profile(req,res,next)
-{
-    try{
-        let token=req.cookies.token;
-        if(!token && req.headers.authorization) {
-            const Header=req.headers.authorization;
-
-            if(Header.startsWith("Bearer ")) {
-                token=Header.split(" ")[1];
+async function profile(req, res, next) {
+    try {
+        let token = req.cookies?.token;
+        if (!token && req.headers?.authorization) {
+            const Header = req.headers.authorization;
+            if (Header.startsWith("Bearer ")) {
+                token = Header.split(" ")[1];
             }
         }
-        if(!token)return res.status(401).json({message: "Please login"});
-        const decoded=jwt.verify(token,process.env.JWT);
+        if (!token) return res.status(401).json({ success: false, message: "Please login" });
+        const decoded = jwt.verify(token, process.env.JWT);
         const redistoken = await redis.get(`token${decoded.id}`);
-        if(redistoken!==token) return res.status(401).send("redis verification failed");
-        req.user=decoded;
+        if (redistoken !== token) {
+            return res.status(401).json({ success: false, message: "redis verification failed" });
+        }
+        req.user = decoded;
         next();
+    } catch (err) {
+        return res.status(401).json({ success: false, message: "verification failed, log in again" });
     }
-    catch(err){ return res.status(401).json({message:"verification failed, log in again"})};
 }
 
-async function rateLimiter(req,res,next) {
-    const ip=req.ip;
-    const key=`rate${ip}`;
-    let count= await redis.incr(key);
-    if(count===1) await redis.expire(key,60);
-    if(count>5) return res.status(429).send("too many request try after some time");
-    next();
+async function rateLimiter(req, res, next) {
+    try {
+        const ip = req.ip || req.connection.remoteAddress;
+        const key = `rate${ip}`;
+        let count = await redis.incr(key);
+        if (count === 1) await redis.expire(key, 60);
+        if (count > 5) {
+            return res.status(429).json({ success: false, message: "too many requests, try after some time" });
+        }
+        next();
+    } catch (err) {
+        // If redis rate limiting fails, allow request through to prevent service disruption
+        next();
+    }
 }
 
 module.exports={register,profile,rateLimiter};

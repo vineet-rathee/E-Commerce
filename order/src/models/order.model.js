@@ -22,15 +22,13 @@ const orderSchema=new mongoose.Schema({
         type:String,
         enum:["COMPLETED","SHIPPED","PLACED","PENDING","CANCELLED"],
     },
-    address:{
-        type:{
-            phone:Number,
-            tag:String,
-            pincode:Number,
-            city:String,
-            state:String,
-            country:String,
-        }
+    address: {
+        phone: Number,
+        tag: String,
+        pincode: Number,
+        city: String,
+        state: String,
+        country: String,
     },
     amount:
     {

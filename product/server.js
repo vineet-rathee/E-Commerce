@@ -5,6 +5,7 @@ const http=require("http");
 
 const server=http.createServer(app);
 
-server.listen(process.env.PORT,()=>{
-    console.log(`👍 Product microservice is running on port http://localhost:${process.env.PORT}`);
-})
+const PORT = process.env.PORT || 3002;
+server.listen(PORT, () => {
+    console.log(`👍 Product microservice is running on port http://localhost:${PORT}`);
+});

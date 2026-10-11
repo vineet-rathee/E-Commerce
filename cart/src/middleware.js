@@ -2,7 +2,14 @@ const axios=require("axios");
 const { addProduct } = require("./controller");
 
 async function verifyUser(req,res,next){
-    const token=req.cookies.token;
+    let token=req.cookies.token;
+    if(!token && req.headers.authorization) {
+            const Header=req.headers.authorization;
+
+            if(Header.startsWith("Bearer ")) {
+                token=Header.split(" ")[1];
+            }
+        }
     if(!token) return res.status(401).send("no token found verification failed");
     try{
         const response=await axios.get(

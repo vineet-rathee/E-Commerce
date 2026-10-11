@@ -48,7 +48,7 @@ async function getCart(req,res) {
     const user=req.user;
     let cart=await cartModel.findOne({user:user.id});
     if(!cart) cart=await cartModel.create({user:user.id});
-    res.status(200).json({found:true,products:cart.products});
+    res.status(200).json({found:true,products:cart.products,user});
 }
 
 module.exports={addProduct,deleteCart,deleteProduct,getCart};

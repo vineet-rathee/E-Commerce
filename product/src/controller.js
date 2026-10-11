@@ -34,8 +34,8 @@ async function deleteProduct(req,res) {
 async function findName(req,res) {
     const name=req.params.name;
     if(!name) return res.status(400).json({message:"provide name"});
-    const products=await productModel.find({name});
-    if(products.length==0) return res.status(200).json({found:false,product});
+    let products=await productModel.find({name});
+    if(products.length==0) return res.status(200).json({found:false,products:[]});
     res.status(200).json({found:true,products});
 }
 
@@ -56,7 +56,7 @@ async function findUser(req,res) {
     res.status(200).json({found:true,product});
 }
 
-async function findPorduct(req,res) {
+async function findProduct(req,res) {
     const id=req.params.id;
     if(!id) return res.status(400).json({found:false,message:"provide product id"});
     const product=await productModel.findOne({_id:id});
@@ -88,4 +88,49 @@ async function updatePrice(req,res) {
     res.status(200).json({message:"price updated",product}); 
 }
 
-module.exports={addProduct,deleteProduct,findName,findCategory,findUser,findPorduct,updateStock,updatePrice};
+async function reduceStock(req, res) {
+    const id = req.params.id;
+    let { amount } = req.body;
+    amount = parseInt(amount);
+    if (!id || !amount || amount <= 0) {
+        return res.status(400).json({ success: false, message: "Valid id and positive amount required" });
+    }
+
+    const product = await productModel.findOneAndUpdate(
+        { _id: id, stock: { $gte: amount } },
+        { $inc: { stock: -amount } },
+        { new: true }
+    );
+
+    if (!product) {
+        return res.status(400).json({
+            success: false,
+            message: "Insufficient stock or product not found"
+        });
+    }
+
+    return res.status(200).json({ success: true, message: "Stock reduced successfully", product });
+}
+
+async function restoreStock(req, res) {
+    const id = req.params.id;
+    let { amount } = req.body;
+    amount = parseInt(amount);
+    if (!id || !amount || amount <= 0) {
+        return res.status(400).json({ success: false, message: "Valid id and positive amount required" });
+    }
+
+    const product = await productModel.findByIdAndUpdate(
+        id,
+        { $inc: { stock: amount } },
+        { new: true }
+    );
+
+    if (!product) {
+        return res.status(404).json({ success: false, message: "Product not found" });
+    }
+
+    return res.status(200).json({ success: true, message: "Stock restored successfully", product });
+}
+
+module.exports={addProduct,deleteProduct,findName,findCategory,findUser,findProduct,updateStock,updatePrice,reduceStock,restoreStock};

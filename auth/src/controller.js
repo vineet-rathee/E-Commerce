@@ -67,7 +67,7 @@ async function changePassword(req,res) {
     if(!user) res.status(400).send("user not found login again");
     if(!(await user.checkPassword(password))) return res.status(400).json({message:"wrong password"});
     user.password=newpassword;
-    user.save();
+    await user.save();
     res.status(200).send("password changed");
 }
 
@@ -86,7 +86,7 @@ async function add_address(req,res){
 async function find_address(req,res) {
     const user=req.user;
     const tag=req.params?.tag;
-    const address=await addressModel.find({tag,user:user.id});
+    const address=await addressModel.findOne({tag,user:user.id});
     if(!address) return res.status(400).send("no address found");
     res.status(200).json({
         message:"address found",
@@ -130,4 +130,11 @@ async function update(req,res) {
         user,
     });
 }
-module.exports={register,login,logout,profile,changePassword,add_address,find_address,delete_address,update};
+
+async function getAddress(req,res) {
+    const {user,tag}=req.params;
+    const address=await addressModel.findOne({user,tag});
+    if(!address) return res.status(400).json({found:false});
+    res.status(200).json({found:true,address});
+}
+module.exports={register,login,logout,profile,changePassword,add_address,find_address,delete_address,update,getAddress};

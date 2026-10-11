@@ -8,7 +8,7 @@ async function register(req,res,next) {
         message:"provide all details to procced",
     })
 
-    const find=await userModel.findOne({email,username});
+    const find=await userModel.findOne({$or:[{email},{username}]});
     if(find)
     {
         return res.status(400).json({

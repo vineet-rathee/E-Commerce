@@ -7,11 +7,13 @@ const controller=require("./controller");
 router.get("/find/name/:name",controller.findName);
 router.get("/find/category",controller.findCategory);
 router.get("/find/user/:id",controller.findUser);
-router.get("/find/product/:id",controller.findPorduct);
+router.get("/find/product/:id",controller.findProduct);
 
 router.post("/add",middleware.verifySeller,controller.addProduct);
 router.delete("/delete",middleware.verifySeller,controller.deleteProduct);
 router.patch("/updateStock/:id",middleware.verifySeller,controller.updateStock)
 router.patch("/updatePrice/:id",middleware.verifySeller,controller.updatePrice);
+router.patch("/reduceStock/:id",controller.reduceStock);
+router.patch("/restoreStock/:id",controller.restoreStock);
 
 module.exports=router;

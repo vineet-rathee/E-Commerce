@@ -3,7 +3,7 @@ const router=express.Router();
 const middleware=require("./middleware");
 const controller=require("./controller");
 
-//router.use(middleware.rateLimiter);
+router.use(middleware.rateLimiter);
 router.post("/register",middleware.register,controller.register);
 router.post("/login",controller.login);
 router.get("/profile",middleware.profile,controller.profile);
